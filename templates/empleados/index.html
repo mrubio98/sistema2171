@@ -7,7 +7,34 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>anda</h1>
+    <!-- b-table-header -->
+    <table class="table table-light">
+        <thead class="thead-light">
+            <tr>
+                <th>id</th>
+                <th>Foto</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- usamos jinja -->
+            {% for empleado in empleados %}
+            <tr>
+                <td>{{ empleado[0] }}</td>
+                <td>{{ empleado[3] }}</td>
+                <td>{{ empleado[1] }}</td>
+                <td>{{ empleado[2] }}</td>
+                <td> 
+                    <a href="/edit/{{empleado[0]}}">Editar</a>
+                    | 
+                    <a href="/delete/{{empleado[0]}}">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
 <!-- hbs4  -->
