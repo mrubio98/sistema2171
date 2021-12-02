@@ -1,46 +1,37 @@
-#Elimine comentarios de la clase31
+#Elimine comentarios de la clase32
 from flask import Flask
-#incluimos redirect para redireccionar a la misma pagina
-from flask import render_template , request , redirect
+#importamos url_for y flash (flash es para validaciones)
+from flask import render_template , request , redirect, url_for, flash
 from flaskext.mysql import MySQL
 from pymysql import DATETIME, cursors
-
-#importamos datetime para insertarlo en las fotos para que no halla dos iguales
 from datetime import date, datetime
-
-#importarmos las librerias de sistema operativo
 import os
+from werkzeug.utils import send_from_directory
 
 app = Flask(__name__)
-
+#necesario para el flask
+app.secret_key="Codoacodo"
 
 mysql = MySQL()
-
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = ''
-app.config['MYSQL_DATABASE_DB'] = 'sistema2171' #nombre de la base de dato
+app.config['MYSQL_DATABASE_DB'] = 'sistema2171' 
 mysql.init_app(app)
 
-#hacemos referencia a la carpeta de uploads
 CARPETA = os.path.join('uploads')
 app.config['CARPETA'] = CARPETA
 
 @app.route('/')
 def index():
-    #traemos los datos de empleados
     sql="SELECT * FROM `empleados`"
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute(sql)
 
-    #diferencia con insert
     empleados = cursor.fetchall()
-    print(empleados)
-
     conn.commit()
 
-    #enviamos ademas la lista empleados
     return render_template('empleados/index.html', empleados = empleados)
 
 @app.route('/create')
@@ -53,35 +44,48 @@ def storage():
     _correo = request.form['txtCorreo']
     _foto = request.files['txtFoto']
 
-    #pido la hora y la transformo en string
+    #validaciones
+    if _nombre == '' or _correo ==  '':
+        flash('Falta llenar algun dato')
+        return redirect(url_for('create'))
+
     now = datetime.now()
     tiempo = now.strftime("%Y%H%M%D")
+    #modifique el string xq no me permitia guardar
+    tiempo2 = tiempo.split('/')
+    tiempo = ''.join(tiempo2)
 
-    #chequeamos si envio la foto
     if _foto.filename != '':
-        #creamos nuevo nombre
         nuevoNombreFoto = tiempo + _foto.filename
-        #y guardamos
-        _foto.save("uploads/"+ nuevoNombreFoto)
+        _foto.save("uploads/"+nuevoNombreFoto)
 
     sql="INSERT INTO `empleados` (`id`, `nombre`, `mail`, `foto`) VALUES (NULL, %s, %s, %s);"
     datos =(_nombre,_correo,nuevoNombreFoto)
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute(sql, datos)
+
+    cursor.execute("SELECT * FROM `empleados`")
+    empleados = cursor.fetchall()
     conn.commit()
 
-    return render_template('empleados/index.html')
+    return render_template('empleados/index.html', empleados = empleados)
 
-#metodo para eliminar
-#<int:id> captura un parametro int en la variable id
 @app.route('/delete/<int:id>')
 def delete(id):
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM empleados WHERE id = %s", (id))
+
+    try:
+        #Eliminamos la foto
+        cursor.execute("SELECT foto FROM empleados WHERE id = %s", (id))
+        fotoVieja = cursor.fetchall()
+        os.remove(os.path.join(app.config['CARPETA'], fotoVieja[0][0]))
+    except:
+        print("no pudo eliminar la foto")
+
     conn.commit()
-    #usamos redirect ya que estamos usamos el mismo template - buena practica
     return redirect('/')
 
 @app.route('/edit/<int:id>')
@@ -89,8 +93,6 @@ def edit(id):
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM empleados WHERE id = %s", (id))
-
-    #trae la data
     empleados = cursor.fetchall()
     conn.commit()
 
@@ -106,15 +108,16 @@ def update(id):
     conn = mysql.connect()
     cursor = conn.cursor()
 
-    #foto
     if _foto.filename != '':
         now = datetime.now()
         tiempo = now.strftime("%Y%H%M%D")
+         #modifique el string xq no me permitia guardar
+        tiempo2 = tiempo.split('/')
+        tiempo = ''.join(tiempo2)
 
         nuevoNombreFoto = tiempo + _foto.filename
         _foto.save("uploads/"+ nuevoNombreFoto)
 
-        #borrar la foto vieja
         cursor.excecute("SELECT foto FROM empleados WHERE id = %s", (id))
         fotoVieja = cursor.fetchall()
         os.remove(os.path.join(app.config['CARPETA'], fotoVieja[0][0]))
@@ -131,10 +134,14 @@ def update(id):
 
     return render_template('empleados/index.html')
 
+#fotos
+app.route('uploads/<nombreFoto>')
+def uploads(nombreFoto):
+    return send_from_directory(app.config['CARPETA'], nombreFoto)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
-
 
 
 #en la terminal escribir python app.py para arrancar

@@ -1,40 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <title>Document</title>
-</head>
-<body>
-    <!-- b-table-header -->
-    <table class="table table-light">
-        <thead class="thead-light">
-            <tr>
-                <th>id</th>
-                <th>Foto</th>
-                <th>Nombre</th>
-                <th>Correo</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- usamos jinja -->
-            {% for empleado in empleados %}
-            <tr>
-                <td>{{ empleado[0] }}</td>
-                <td>{{ empleado[3] }}</td>
-                <td>{{ empleado[1] }}</td>
-                <td>{{ empleado[2] }}</td>
-                <td> 
-                    <a href="/edit/{{empleado[0]}}">Editar</a>
-                    | 
-                    <a href="/delete/{{empleado[0]}}">Eliminar</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+{% include 'header.html' %}
+<br><br><br>
+<table class="table table-light">
+    <thead class="thead-light">
+        <tr>
+            <th>id</th>
+            <th>Foto</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- usamos jinja -->
+        {% for empleado in empleados %}
+        <tr>
+            <td>{{ empleado[0] }}</td>
+            <td><img width="100" src='uploads/{{empleado[3]}}' alt="No hay foto"></td>
+            <td>{{ empleado[1] }}</td>
+            <td>{{ empleado[2] }}</td>
+            <td> 
+                <a href="/edit/{{empleado[0]}}">Editar</a>
+                | 
+                <a href="/delete/{{empleado[0]}}" onclick="return confirm('Posta que lo queres borrar?')">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% include 'footer.html' %}
 <!-- hbs4  -->

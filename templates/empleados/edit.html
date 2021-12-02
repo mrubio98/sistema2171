@@ -1,30 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <title>Edit</title>
-</head>
-<body>
-    <p>hola</p>
+{% include 'header.html' %}
     {% for empleado in empleados %}
     <p>Formulario para Editar ID: {{empleado[0]}}</p>
     <form method="post" action="/update/{{empleado[0]}}" enctype="multipart/form-data">
-        Nombre:
-        <input type="text" name="txtNombre" value="{{empleado[1]}}" id="txtNombre">
-        <br>
-    
-        Correo:
-        <input type="text" name="txtCorreo" value="{{empleado[2]}}" id="txtCorreo">
-        <br>
-    
-        Foto:
-        <input type="file" name="txtFoto" id="txtFoto">
-        <br>
-    
-        <input type="submit" value="Actualizar">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Actualizar Empleado</h5>
+                <p class="card-text">Datos ID: {{empleado[0]}}</p>
+                <div class="form-group">
+                    <label for="txtNombre">Nombre</label>
+                    <input id="my-input" class="form-control" type="text" name="txtNombre" value="{{empleado[1]}}">
+                </div>
+                <br>
+                <div class="form-group">
+                    <label for="txtCorreo">Correo</label>
+                    <input id="my-input" class="form-control" type="text" name="txtCorreo" value="{{empleado[2]}}">
+                </div>
+                <br>
+                <div class="form-group">
+                    <label for="txtFoto">Foto</label>
+                    <input id="my-input" class="form-control" type="file" name="txtFoto">
+                </div>
+                <div class="form-group">
+                    <input class="btn btn-success" type="submit" value="Actualizar">
+                </div>
+            </div>
+        </div>    
     </form>
     {% endfor %}
-</body>
-</html>
+
+{% include 'footer.html' %}
